@@ -159,4 +159,54 @@
   "car_make": "Aston Martin",
   "car_model": "V8 Vantage S",
   "car_model_year": 2012
-}]
+}, {
+  "car_make": "Toyota",
+  "car_model": "Camry",
+  "car_model_year": 2022
+},
+  {
+    "car_make": "Honda",
+    "car_model": "Accord",
+    "car_model_year": 2021
+  },
+  {
+    "car_make": "Ford",
+    "car_model": "Mustang",
+    "car_model_year": 2023
+  },
+  {
+    "car_make": "Tesla",
+    "car_model": "Model 3",
+    "car_model_year": 2022
+  },
+  {
+    "car_make": "BMW",
+    "car_model": "X5",
+    "car_model_year": 2020
+  },
+  {
+    "car_make": "Mercedes",
+    "car_model": "C-Class",
+    "car_model_year": 2021
+  },
+  {
+    "car_make": "Audi",
+    "car_model": "A4",
+    "car_model_year": 2022
+  },
+  {
+    "car_make": "Nissan",
+    "car_model": "Altima",
+    "car_model_year": 2019
+  },
+  {
+    "car_make": "Chevrolet",
+    "car_model": "Malibu",
+    "car_model_year": 2020
+  },
+  {
+    "car_make": "Hyundai",
+    "car_model": "Sonata",
+    "car_model_year": 2021
+  }
+]
