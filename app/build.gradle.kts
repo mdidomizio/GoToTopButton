@@ -50,4 +50,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation ("androidx.coordinatorlayout:coordinatorlayout:1.1.0")
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
 }
