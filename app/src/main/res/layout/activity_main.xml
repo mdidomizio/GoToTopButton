@@ -15,18 +15,20 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent" />
 
-    <de.hdodenhof.circleimageview.CircleImageView
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/scroll_to_top_arrow"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:layout_alignEnd="@+id/cars_rv"
-        android:layout_alignBottom="@+id/cars_rv"
-        android:layout_centerInParent="true"
-        android:layout_marginEnd="-85dp"
-        android:layout_marginBottom="18dp"
-        android:rotation="90"
-        android:scaleType="centerCrop"
-        android:src="@drawable/baseline_arrow_back_24"
-        app:civ_border_width="2dp" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="scroll_to_top"
+        android:src="@drawable/baseline_arrow_upward_24"
+        android:visibility="gone"
+        app:backgroundTint="#000000"
+        app:borderWidth="0dp"
+        app:fabSize="normal"
+        app:tint="#FFFFFF" />
 
 </RelativeLayout>

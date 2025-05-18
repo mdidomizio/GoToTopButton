@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GoToTopButton</string>
+    <string name="scroll_to_top_fab">scroll to top</string>
 </resources>

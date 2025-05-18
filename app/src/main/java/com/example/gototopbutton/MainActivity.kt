@@ -1,6 +1,5 @@
 package com.example.gototopbutton
 
-import android.animation.ValueAnimator
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.graphics.Color
@@ -9,15 +8,17 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
-import android.widget.RelativeLayout
+import android.view.animation.AnticipateInterpolator
+import android.view.animation.LinearInterpolator
+import android.view.animation.OvershootInterpolator
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.gototopbutton.databinding.ActivityMainBinding
 import com.example.gototopbutton.model.Car
 import com.example.gototopbutton.model.CarElement
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.johncodeos.scrolltotopexample.Cars_RVAdapter
 import org.json.JSONArray
 import org.json.JSONException
@@ -35,6 +36,23 @@ class MainActivity : AppCompatActivity() {
     var animatedShow = false
     var findLastVisibleItemPositionValue = 12
 
+    private fun bounceButton(button: FloatingActionButton) {
+        button.animate()
+            .scaleX(1.2f)
+            .scaleY(1.2f)
+            .setDuration(100)
+            .setInterpolator(LinearInterpolator())
+            .withEndAction {
+                button.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(100)
+                    .setInterpolator(LinearInterpolator())
+                    .start()
+            }
+            .start()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -49,19 +67,17 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = layoutManager
         recyclerView.setHasFixedSize(true)
 
-        scrollToTopArrow.borderColor = Color.WHITE
-        scrollToTopArrow.circleBackgroundColor = ContextCompat.getColor(this, R.color.black)
         scrollToTopArrow.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
-
-        // Positions for the arrow when is hidden and visible
-        val whenVisibleMargin = convertDpToPixel(15f, recyclerView.context)
-        val whenHiddeMargin = convertDpToPixel(-85f, recyclerView.context)
 
         // Hide the arrow at the beginning when the screen starts
         scrollToTopArrow.visibility = View.GONE
+        scrollToTopArrow.scaleX = 0f
+        scrollToTopArrow.scaleY = 0f
 
         // Scroll to the top when you press the arrow
         scrollToTopArrow.setOnClickListener {
+            // Add bounce effect when clicked
+            bounceButton(scrollToTopArrow)
             recyclerView.post {
                 recyclerView.smoothScrollToPosition(0)
             }
@@ -71,31 +87,32 @@ class MainActivity : AppCompatActivity() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                if (layoutManager.findLastVisibleItemPosition() >= findLastVisibleItemPositionValue) {
                    if (!animatedShow) {
+                       // show with scale animation
                        scrollToTopArrow.visibility = View.VISIBLE
-                       val params = scrollToTopArrow.layoutParams as RelativeLayout.LayoutParams
-                       val animator =
-                           ValueAnimator.ofInt(params.rightMargin, whenVisibleMargin.toInt())
-                       animator.addUpdateListener { valueAnimator ->
-                           params.rightMargin = valueAnimator.animatedValue as Int
-                           scrollToTopArrow.requestLayout()
-                       }
-                       animator.duration = 300
-                       animator.start()
+                       scrollToTopArrow.scaleX = 0f
+                       scrollToTopArrow.scaleY = 0f
+                       scrollToTopArrow.animate()
+                           .scaleX(1f)
+                           .scaleY(1f)
+                           .setDuration(300)
+                           .setInterpolator(OvershootInterpolator())
+                           .start()
                        animatedShow = true
                        animatedHide = false
                    }
                } else {
                    if (!animatedHide) {
-                       scrollToTopArrow.visibility = View.VISIBLE
-                       val params = scrollToTopArrow.layoutParams as RelativeLayout.LayoutParams
-                       val animator =
-                           ValueAnimator.ofInt(params.rightMargin, whenHiddeMargin.toInt())
-                       animator.addUpdateListener { valueAnimator ->
-                           params.rightMargin = valueAnimator.animatedValue as Int
-                           scrollToTopArrow.requestLayout()
-                       }
-                       animator.duration = 300
-                       animator.start()
+                       scrollToTopArrow.animate()
+                           .scaleX(0f)
+                           .scaleY(0f)
+                           .setDuration(300)
+                           .setInterpolator(AnticipateInterpolator())
+                           .withEndAction{
+                               if (scrollToTopArrow.scaleX == 0f) {
+                                   scrollToTopArrow.visibility = View.GONE
+                               }
+                           }
+                           .start()
                        animatedHide = true
                        animatedShow = false
                    }
@@ -105,11 +122,6 @@ class MainActivity : AppCompatActivity() {
         })
         loadData()
     }
-
-    private fun convertDpToPixel(dp: Float, context: Context?): Float {
-           return dp * (context?.resources?.displayMetrics?.densityDpi?.toFloat()
-               ?.div(DisplayMetrics.DENSITY_DEFAULT)!!)
-        }
 
     private fun loadData() {
         Log.d(TAG, "loadData: Started loading data")
