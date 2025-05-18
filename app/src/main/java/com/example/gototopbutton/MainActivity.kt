@@ -1,12 +1,20 @@
 package com.example.gototopbutton
 
+import android.animation.ValueAnimator
 import android.content.ContentValues.TAG
+import android.content.Context
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Bundle
-import android.text.TextUtils
+import android.util.DisplayMetrics
 import android.util.Log
+import android.view.View
+import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.gototopbutton.databinding.ActivityMainBinding
 import com.example.gototopbutton.model.Car
 import com.example.gototopbutton.model.CarElement
@@ -23,6 +31,9 @@ class MainActivity : AppCompatActivity() {
     lateinit var adapter: Cars_RVAdapter
     private lateinit var binding: ActivityMainBinding
 
+    var animatedHide = false
+    var animatedShow = false
+    var findLastVisibleItemPositionValue = 12
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,18 +43,73 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate: Setting up RecyclerView")
 
         val recyclerView = binding.carsRv
+        val scrollToTopArrow = binding.scrollToTopArrow
 
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        val layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = layoutManager
         recyclerView.setHasFixedSize(true)
 
-        binding.toolbarTitle.ellipsize = TextUtils.TruncateAt.MARQUEE
-        binding.toolbarTitle.isSingleLine = true
-        binding.toolbarTitle.isSelected = true
-        binding.toolbarTitle.setOnClickListener { binding.carsRv.smoothScrollToPosition(0)}
-        binding.toolbarTitle.text = "Scroll To Top Example"
+        scrollToTopArrow.borderColor = Color.WHITE
+        scrollToTopArrow.circleBackgroundColor = ContextCompat.getColor(this, R.color.black)
+        scrollToTopArrow.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
 
+        // Positions for the arrow when is hidden and visible
+        val whenVisibleMargin = convertDpToPixel(15f, recyclerView.context)
+        val whenHiddeMargin = convertDpToPixel(-85f, recyclerView.context)
+
+        // Hide the arrow at the beginning when the screen starts
+        scrollToTopArrow.visibility = View.GONE
+
+        // Scroll to the top when you press the arrow
+        scrollToTopArrow.setOnClickListener {
+            recyclerView.post {
+                recyclerView.smoothScrollToPosition(0)
+            }
+        }
+
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+               if (layoutManager.findLastVisibleItemPosition() >= findLastVisibleItemPositionValue) {
+                   if (!animatedShow) {
+                       scrollToTopArrow.visibility = View.VISIBLE
+                       val params = scrollToTopArrow.layoutParams as RelativeLayout.LayoutParams
+                       val animator =
+                           ValueAnimator.ofInt(params.rightMargin, whenVisibleMargin.toInt())
+                       animator.addUpdateListener { valueAnimator ->
+                           params.rightMargin = valueAnimator.animatedValue as Int
+                           scrollToTopArrow.requestLayout()
+                       }
+                       animator.duration = 300
+                       animator.start()
+                       animatedShow = true
+                       animatedHide = false
+                   }
+               } else {
+                   if (!animatedHide) {
+                       scrollToTopArrow.visibility = View.VISIBLE
+                       val params = scrollToTopArrow.layoutParams as RelativeLayout.LayoutParams
+                       val animator =
+                           ValueAnimator.ofInt(params.rightMargin, whenHiddeMargin.toInt())
+                       animator.addUpdateListener { valueAnimator ->
+                           params.rightMargin = valueAnimator.animatedValue as Int
+                           scrollToTopArrow.requestLayout()
+                       }
+                       animator.duration = 300
+                       animator.start()
+                       animatedHide = true
+                       animatedShow = false
+                   }
+               }
+                super.onScrolled(recyclerView, dx, dy)
+            }
+        })
         loadData()
     }
+
+    private fun convertDpToPixel(dp: Float, context: Context?): Float {
+           return dp * (context?.resources?.displayMetrics?.densityDpi?.toFloat()
+               ?.div(DisplayMetrics.DENSITY_DEFAULT)!!)
+        }
 
     private fun loadData() {
         Log.d(TAG, "loadData: Started loading data")
